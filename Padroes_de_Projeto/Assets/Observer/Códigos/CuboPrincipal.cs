@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class animacaoCubo : MonoBehaviour {
+public class CuboPrincipal : MonoBehaviour, IObjetoObservado{
 
 	private Rigidbody rb;
 	private Animator animar;
 	private float velocidadePulo;
 	private bool estaNoChao;
 	private RaycastHit rayChao;
+	private bool mudou;
 
 	void Awake () {
 		estaNoChao = false;
@@ -43,22 +45,46 @@ public class animacaoCubo : MonoBehaviour {
 			}
 			if (Physics.Raycast(transform.position, -transform.up, 1.7f)){
 				animar.SetTrigger("puloCair");
+
+				AtualizaObservador("pulou");
 			}
 		}
 
-		//comando para andar (movimentaçao)
+		//comando para andar (animaçao e movimento)
 		if (Input.GetKey (KeyCode.W)) {
 			rb.transform.Translate (-10 * Time.deltaTime, 0, 0);
 			animar.SetBool ("andar", true);
+			AtualizaObservador("andou");
+
 		} else {
 			animar.SetBool("andar",false);
 		}
 		//comando para rotacionar
 		if (Input.GetKey (KeyCode.A)) {
-			rb.transform.Rotate (0, -80 * Time.deltaTime, 0);
+			rb.transform.Rotate (0, -110 * Time.deltaTime, 0);
 		}
 		if (Input.GetKey(KeyCode.D)) {
-			rb.transform.Rotate(0,80 * Time.deltaTime,0);
+			rb.transform.Rotate(0,110* Time.deltaTime,0);
+		}
+		AtualizaObservador("nada");
+
+	}
+
+	//Lista de Objetos Obervadores
+	List<IObjetoObservador> observadores = new List<IObjetoObservador>();
+	
+	//adiciona Objetos
+	public void Subscribe(IObjetoObservador obs){
+		
+		observadores.Add(obs);
+		
+	}
+
+	//Atualizaçao de Objetos
+	public void AtualizaObservador(string OqueMudou){
+		foreach (IObjetoObservador o in observadores){
+			
+			o.MudancaObservador(OqueMudou);
 		}
 	}
 }
